@@ -1,0 +1,45 @@
+/* components/AdminDashboard.module.css */
+
+.container {
+    padding: 2rem;
+    color: white;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .subtitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: black;
+    border: 1px solid #ccc;
+  }
+  
+  .button {
+    background-color: black;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .successMessage {
+    margin-top: 1rem;
+    color: #4ade80; /* Tailwind green-400 */
+  }
+  
