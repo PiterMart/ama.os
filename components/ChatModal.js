@@ -34,6 +34,7 @@ export default function ChatModal({ chatId = "global", onClose }) {
 
     return () => unsubscribe();
   }, [chatId]);
+  
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -41,12 +42,9 @@ export default function ChatModal({ chatId = "global", onClose }) {
     const user = auth.currentUser;
     if (!user) return;
 
-    try {
-      // Obtener el documento del usuario desde Firestore usando su UID
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userData = userDoc.data();
-      const senderUsername = userData?.username || "Usuario Desconocido";
+    const senderUsername = user.displayName || "Usuario Desconocido";
 
+    try {
       const chatRef = doc(db, "chats", chatId);
       const messagesRef = collection(chatRef, "messages");
 
