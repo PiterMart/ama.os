@@ -21,27 +21,29 @@ export default function RegisterForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Error");
-      }
-
-      setSubmitted(true);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Error al registrar.");
-    }
-  };
+        e.preventDefault();
+        setError(null);
+    
+        try {
+          const res = await fetch("/api/test", { // Cambia la ruta a /api/test
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+          });
+    
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.message || "Error al registrar.");
+          }
+    
+          const data = await res.json();
+          console.log(data); // Muestra la respuesta
+          setSubmitted(true);
+        } catch (err) {
+          console.error(err);
+          setError(err.message || "Error al registrar.");
+        }
+      };
 
   return submitted ? (
     <div className={styles.gracias}>¡Gracias por registrarte!</div>
