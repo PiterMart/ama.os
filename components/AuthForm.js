@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase/firebaseConfig";  // Importa tu configuración de Firebase
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import RegisterForm from "../components/RegsiterForm";  // Importa tu formulario de registro
+import RegisterForm from "../components/NewsletterForm.js";  // Importa tu formulario de registro
 import styles from "../styles/ContactForm.module.css";
 
 export default function AuthForm() {
