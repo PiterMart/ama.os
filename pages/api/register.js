@@ -3,13 +3,9 @@ import { Timestamp } from "firebase-admin/firestore";
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
-    console.log("Valor de FIREBASE_PROJECT_ID en Vercel:", process.env.FIREBASE_PROJECT_ID); // Ya tienes esta línea
-    console.log("Service Account en Vercel:", serviceAccount); // Y esta también
-  
-    // Agrega esta nueva línea justo debajo:
-    console.log("Valor directo de process.env.FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-  
-    if (req.method !== "POST") return res.status(405).end();
+  console.log("Valor de FIREBASE_PROJECT_ID en Vercel:", process.env.FIREBASE_PROJECT_ID);
+  if (req.method !== "POST") return res.status(405).end();
+
   const { username, email, password } = req.body; // Eliminé country y profession
 
   if (!username || !email || !password ) {

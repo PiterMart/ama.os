@@ -23,19 +23,19 @@ export default function RegisterForm() {
   const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-   
+
         try {
-          const res = await fetch("/api/register", { // Cambia la ruta de vuelta a /api/register
+          const res = await fetch("/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
           });
-   
+
           if (!res.ok) {
             const data = await res.json();
             throw new Error(data.message || "Error al registrar.");
           }
-   
+
           setSubmitted(true);
         } catch (err) {
           console.error(err);
