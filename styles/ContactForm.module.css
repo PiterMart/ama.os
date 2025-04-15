@@ -1,7 +1,6 @@
 .formulario {
     background: rgba(255, 255, 255, 0.2);
     padding: 2rem;
-    border-radius: 1rem;
     color: white;
     backdrop-filter: blur(10px);
     display: flex;
@@ -11,7 +10,6 @@
   
   .input {
     padding: 0.75rem;
-    border-radius: 0.5rem;
     border: none;
     width: 100%;
     background: white;
@@ -22,7 +20,6 @@
   .textarea {
     min-height: 100px;
     padding: 0.75rem;
-    border-radius: 0.5rem;
     border: none;
     width: 100%;
     background: white;
@@ -32,7 +29,6 @@
   
   .select {
     padding: 0.75rem;
-    border-radius: 0.5rem;
     background: white;
     color: black;
     font-size: 1rem;
@@ -43,7 +39,6 @@
     background: black;
     color: white;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
     font-weight: bold;
     border: none;
     cursor: pointer;
