@@ -1,0 +1,102 @@
+.loadingContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 1; /* Asegura que sea visible al principio */
+    transition: opacity 0.5s ease-in-out; /* Transición para el fade-out */
+  }
+  
+  .fadeOut {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out; /* Misma duración que la inicial */
+  }
+  
+  .logoAnimation {
+    margin-bottom: 20px;
+    opacity: 0; /* Inicialmente invisible */
+    filter: blur(10px); /* Inicialmente con blur */
+    transition: opacity 1s ease-in-out, filter 1s ease-in-out; /* Transición suave para opacidad y blur */
+  }
+  
+  .logoAnimation.fadeIn {
+    opacity: 1; /* Visible al final de la animación */
+    filter: none; /* Sin blur al final de la animación */
+  }
+  
+  .progressBar {
+    width: 80%;
+    height: 10px;
+    background-color: white; /* Fondo blanco */
+    border: 1px solid black; /* Bordes negros */
+    border-radius: 0; /* Elimina los bordes redondeados */
+    overflow: hidden;
+    position: relative; /* Para posicionar el texto encima */
+    box-sizing: border-box; /* Asegura que el borde esté incluido en el tamaño */
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Centra verticalmente los elementos hijos */
+    margin: 0; /* Elimina márgenes */
+    padding: 0; /* Elimina padding */
+  }
+  
+  .progress {
+    background-color: black; /* Color negro para el progreso */
+    height: 100%;
+    width: 0; /* Inicialmente ancho cero */
+    box-sizing: border-box; /* Asegura que no haya padding o borde inesperado */
+    margin: 0; /* Elimina márgenes */
+    padding: 0; /* Elimina padding */
+  }
+  
+  .loadingText {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #555;
+  }
+
+  .consoleText {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 20px;
+    /* background-color: #222; Elimina el fondo oscuro */
+    color: #333; /* Un color de texto más adecuado para fondo blanco */
+    font-family: monospace, sans-serif;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    overflow-y: auto; /* Añade scroll vertical si el contenido excede la altura */
+    max-height: 200px; /* Ajusta la altura máxima según necesites */
+    border-radius: 5px;
+    border: 1px solid #ccc; /* Opcional: un borde para delimitar el área */
+  }
+  
+  .consoleText p {
+    margin: 5px 0;
+    overflow-y: auto;
+  }
+  .consoleText::-webkit-scrollbar {
+    width: 0px; /* Para scrollbar vertical */
+    height: 0px; /* Para scrollbar horizontal */
+    background: transparent; /* O puedes usar transparent */
+  }
+  
+  /* Opcional: también puedes ocultar el "thumb" (la parte que arrastras) */
+  .consoleText::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+
+
+  .restElements {
+        opacity: 0; /* Inicialmente invisible */
+        transition: opacity 1s ease-in-out; /* Añadimos la transición para la opacidad */
+    }
+    
+    .restFadeIn {
+        opacity: 1;
+    }

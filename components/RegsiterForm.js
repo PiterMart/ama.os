@@ -56,12 +56,12 @@ export default function RegisterForm() {
   return submitted ? (
     <div className={styles.gracias}>¡Gracias por registrarte!</div>
   ) : (
-    <form onSubmit={handleSubmit} className={styles.formulario}>
-      <input name="username" placeholder="Nombre de Usuario" value={form.username} onChange={handleChange} required className={styles.input} />
-      <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className={styles.input} />
-      <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} required className={styles.input} />
-      <button type="submit" className={styles.boton}>Registrarse</button>
-      {error && <p className={styles.error}>{error}</p>}
-    </form>
+        <form onSubmit={handleSubmit} className={styles.formulario}>
+    <input name="username" placeholder="Nombre de Usuario" value={form.username} onChange={handleChange} required className={styles.input} />
+    <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className={styles.input} />
+    <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} required className={styles.input} />
+    <button type="submit" className={styles.boton}>Registrarse</button>
+    {error && <p className={styles.error}>{error}</p>}
+  </form>
   );
 }
