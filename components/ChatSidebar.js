@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db, auth } from "../firebase/firebaseConfig";
+import { db } from "@/lib/firebase";
 import {
   collection,
   query,
@@ -11,14 +11,15 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
+import { useAuth } from "@/contexts/AuthContext";
 import styles from "../styles/ChatSidebar.module.css";
 
 export default function ChatSidebar({ onSelectChat, onSelectUser }) {
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const user = auth.currentUser;
 
   useEffect(() => {
     if (!user) return;

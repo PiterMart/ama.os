@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, getDoc, getDocs, writeBatch, where } from 'firebase/firestore';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import styles from '../styles/ChatModal.module.css';
 import ChatSidebar from './ChatSidebar';
 import PrivateChat from './PrivateChat';
 
 const ChatModal = () => {
+  const { user, login } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -18,8 +21,6 @@ const ChatModal = () => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const messagesEndRef = useRef(null);
-  const auth = getAuth();
-  const user = auth.currentUser;
 
   // Update user's online status
   useEffect(() => {
@@ -129,7 +130,10 @@ const ChatModal = () => {
     setLoginError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, loginForm.email, loginForm.password);
+      const result = await login(loginForm.email, loginForm.password);
+      if (!result.success) {
+        setLoginError(result.error);
+      }
     } catch (error) {
       setLoginError(error.message);
     }

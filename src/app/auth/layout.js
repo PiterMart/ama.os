@@ -1,3 +1,5 @@
+import { AuthProvider } from '../../../contexts/AuthContext';
+import { ChatProvider } from '../../../contexts/ChatContext';
 import Navbar from '../../../components/Navbar';
 
 export const metadata = {
@@ -7,9 +9,15 @@ export const metadata = {
 
 export default function AuthLayout({ children }) {
   return (
-    <>
-      <Navbar />
-      {children}
-    </>
+    <html lang="en">
+      <body>
+        <AuthProvider>
+          <ChatProvider>
+            <Navbar />
+            {children}
+          </ChatProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
 } 

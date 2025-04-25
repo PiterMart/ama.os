@@ -14,7 +14,12 @@ export default function Navbar() {
     const [hasScrolled, setHasScrolled] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
     const currentPath = usePathname();
-    const { user, logout } = useAuth();
+    const { user, logout, loading } = useAuth();
+
+    // Debug logs
+    useEffect(() => {
+        console.log('Navbar - Auth State:', { user, loading });
+    }, [user, loading]);
 
     const pages = [
         { name: 'AMA.OS', path: '/ama.os', delay: '0.2s' },
@@ -43,6 +48,10 @@ export default function Navbar() {
             return () => window.removeEventListener('scroll', controlNavbar);
         }
     }, [lastScrollY]);
+
+    if (loading) {
+        return null; // or a loading spinner
+    }
 
     return (
         <div className={`${styles.nav} ${hasScrolled ? styles.nav_scrolled : styles.nav_transparent} ${isVisible ? styles.nav_visible : styles.nav_hidden}`}>

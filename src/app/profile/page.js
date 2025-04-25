@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
@@ -31,7 +31,7 @@ const extractUsername = (input, platform) => {
 };
 
 export default function ProfilePage() {
-  const [user, loading] = useAuthState(auth);
+  const { user, loading } = useAuth();
   const [userData, setUserData] = useState(null);
   const [artworks, setArtworks] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
