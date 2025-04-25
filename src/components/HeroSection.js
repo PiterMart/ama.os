@@ -84,7 +84,7 @@ export default function HeroSection() {
       </div>
       <div className={styles.logoContainer}>
         <Image
-          src="/LOGO-BLACK.png"
+          src="/LOGO WHITE.svg"
           alt="AMA OS Logo"
           width={400}
           height={400}

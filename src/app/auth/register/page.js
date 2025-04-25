@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -90,7 +90,7 @@ export default function RegisterPage() {
         </button>
       </form>
       <p className={styles.loginLink}>
-        Already have an account? <Link href="/login">Login</Link>
+        Already have an account? <Link href="/auth/login">Login</Link>
       </p>
     </div>
   );

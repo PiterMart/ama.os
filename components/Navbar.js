@@ -48,7 +48,7 @@ export default function Navbar() {
         <div className={`${styles.nav} ${hasScrolled ? styles.nav_scrolled : styles.nav_transparent} ${isVisible ? styles.nav_visible : styles.nav_hidden}`}>
             <Link href="/">
                 <Image
-                    src="/LOGO-BLACK.svg"
+                    src="/LOGO WHITE.svg"
                     alt="AMA.OS"
                     width={0}
                     height={0}
@@ -78,7 +78,7 @@ export default function Navbar() {
                         <>
                             <li>
                                 <span className={styles.userStatus}>
-                                    Signed in as {user.email}
+                                    Signed in as {user.displayName || user.email}
                                 </span>
                             </li>
                             <li>
@@ -93,11 +93,18 @@ export default function Navbar() {
                             </li>
                         </>
                     ) : (
-                        <li>
-                            <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                                Register
-                            </Link>
-                        </li>
+                        <>
+                            <li>
+                                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
+                                    Login
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/auth/register" onClick={() => setIsMenuOpen(false)}>
+                                    Register
+                                </Link>
+                            </li>
+                        </>
                     )}
                 </ul>
             </div>
