@@ -1,0 +1,79 @@
+.button {
+  background: linear-gradient(to right, #000 50%, #fff 50%);
+  background-size: 200% 100%;
+  background-position: left bottom;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:hover {
+  background-position: right bottom;
+  color: #000;
+  border-color: #000;
+}
+
+.button:disabled {
+  background: #666;
+  color: #999;
+  border-color: #999;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary {
+  composes: button;
+}
+
+.secondary {
+  composes: button;
+  background: linear-gradient(to right, #333 50%, #fff 50%);
+  background-size: 200% 100%;
+  background-position: left bottom;
+}
+
+.secondary:hover {
+  background-position: right bottom;
+  color: #333;
+  border-color: #333;
+}
+
+/* Sizes */
+.small {
+  composes: button;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.medium {
+  composes: button;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.large {
+  composes: button;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+}
+
+/* Special states */
+.fullWidth {
+  composes: button;
+  width: 100%;
+  text-align: center;
+}
+
+.icon {
+  composes: button;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+} 

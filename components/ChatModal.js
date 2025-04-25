@@ -1,159 +1,313 @@
-import { useState, useEffect } from "react";
-import { db, auth } from "../firebase/firebaseConfig.js";
-import {
-  collection,
-  addDoc,
-  doc,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  Timestamp,
-  getDoc,
-  updateDoc,
-  where,
-  getDocs
-} from "firebase/firestore";
-import styles from "../styles/ChatModal.module.css";
+"use client";
 
-export default function ChatModal({ chatId = "global", onClose }) {
-  const [message, setMessage] = useState("");
+import React, { useState, useEffect, useRef } from 'react';
+import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, getDoc, getDocs, writeBatch, where } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import styles from '../styles/ChatModal.module.css';
+import ChatSidebar from './ChatSidebar';
+import PrivateChat from './PrivateChat';
+
+const ChatModal = () => {
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userColors, setUserColors] = useState({});
-  const [selectedColor, setSelectedColor] = useState('#000000'); // Estado para el color seleccionado
+  const [userColor, setUserColor] = useState('#007bff');
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [loginError, setLoginError] = useState(null);
+  const [selectedChatId, setSelectedChatId] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const messagesEndRef = useRef(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // Update user's online status
+  useEffect(() => {
+    if (!user) return;
+
+    const db = getFirestore();
+    const userRef = doc(db, 'users', user.uid);
+
+    // Set user as online
+    updateDoc(userRef, {
+      online: true,
+      lastSeen: serverTimestamp()
+    });
+
+    // Set up listener for window close
+    const handleBeforeUnload = () => {
+      updateDoc(userRef, {
+        online: false,
+        lastSeen: serverTimestamp()
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      updateDoc(userRef, {
+        online: false,
+        lastSeen: serverTimestamp()
+      });
+    };
+  }, [user]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    const chatRef = doc(db, "chats", chatId);
-    const messagesRef = collection(chatRef, "messages");
-    const q = query(messagesRef, orderBy("timestamp", "asc"), limit(50));
+    scrollToBottom();
+  }, [messages]);
 
-    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-      const msgs = [];
-      const senders = new Set();
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        msgs.push(data);
-        senders.add(data.sender);
-      });
-      setMessages(msgs);
+  useEffect(() => {
+    if (!user) return;
+
+    const db = getFirestore();
+    const messagesRef = collection(db, 'chats', 'global', 'messages');
+    const q = query(messagesRef, orderBy('timestamp', 'asc'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setMessages(newMessages);
       setLoading(false);
-
-      const newColors = { ...userColors };
-      for (const sender of senders) {
-        if (!newColors[sender]) {
-          const userQuery = query(collection(db, "users"), where("username", "==", sender));
-          const userSnapshot = await getDocs(userQuery);
-          userSnapshot.forEach((userDoc) => {
-            const userData = userDoc.data();
-            newColors[sender] = userData.chatColor || 'inherit';
-          });
-        }
-      }
-      setUserColors(newColors);
     });
 
     return () => unsubscribe();
-  }, [chatId]);
+  }, [user]);
 
-  const handleSendMessage = async (e) => {
+  useEffect(() => {
+    const loadUserColor = async () => {
+      if (!user) return;
+      
+      try {
+        const db = getFirestore();
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().chatColor) {
+          setUserColor(userDoc.data().chatColor);
+        }
+      } catch (error) {
+        console.error('Error loading user color:', error);
+      }
+    };
+
+    loadUserColor();
+  }, [user]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!newMessage.trim() || !user) return;
 
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const senderUsername = user.displayName || "Usuario Desconocido";
+    const db = getFirestore();
 
     try {
-      const chatRef = doc(db, "chats", chatId);
-      const messagesRef = collection(chatRef, "messages");
+      // Get user's profile picture URL
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.data();
+      const profilePicture = userData?.profilePicture || null;
 
-      await addDoc(messagesRef, {
-        sender: senderUsername,
-        text: message.trim(),
-        timestamp: Timestamp.now(),
+      await addDoc(collection(db, 'chats', 'global', 'messages'), {
+        text: newMessage,
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous',
+        userColor: userColor,
+        profilePicture: profilePicture,
+        timestamp: serverTimestamp()
       });
-      setMessage("");
-    } catch (err) {
-      console.error("Error al enviar el mensaje:", err);
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
   };
 
-  const handleColorChange = (event) => {
-    setSelectedColor(event.target.value);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+
+    try {
+      await signInWithEmailAndPassword(auth, loginForm.email, loginForm.password);
+    } catch (error) {
+      setLoginError(error.message);
+    }
   };
 
-  const handleSaveColor = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+  const handleLoginChange = (e) => {
+    setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
+  };
 
-    const senderUsername = user.displayName;
-    if (senderUsername) {
-      const userRef = doc(db, "users", senderUsername);
+  const handleColorChange = async (e) => {
+    const newColor = e.target.value;
+    setUserColor(newColor);
+    
+    if (user) {
       try {
-        await updateDoc(userRef, { chatColor: selectedColor });
-        // Opcional: Puedes actualizar el estado local userColors inmediatamente
-        setUserColors({...userColors, [senderUsername]: selectedColor});
+        const db = getFirestore();
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          chatColor: newColor
+        });
+
+        // Update all previous messages from this user in the global chat
+        const messagesRef = collection(db, 'chats', 'global', 'messages');
+        const userMessagesQuery = query(messagesRef, where('userId', '==', user.uid));
+        const snapshot = await getDocs(userMessagesQuery);
+        
+        const batch = writeBatch(db);
+        snapshot.docs.forEach(doc => {
+          batch.update(doc.ref, { userColor: newColor });
+        });
+        await batch.commit();
       } catch (error) {
-        console.error("Error al guardar el color:", error);
+        console.error('Error updating chat color:', error);
       }
     }
   };
 
+  const handleSelectUser = (userId) => {
+    console.log("User selected:", userId);
+    setSelectedUserId(userId);
+    setSelectedChatId(null);
+  };
+
+  const handleSelectChat = (chatId) => {
+    console.log("Chat selected:", chatId);
+    setSelectedChatId(chatId);
+    setSelectedUserId(null);
+  };
+
   return (
-    <div className={styles.modal}>
-      <div className={styles.modalContent}>
-        <h3 className={styles.chatTitle}>
-          {chatId === "global" ? "Chat Global" : ` ${chatId}`}
-        </h3>
-
-        <div className={styles.colorPicker}> {/* Contenedor para el selector de color */}
-          <label htmlFor="colorPicker">Elegir color del nombre:</label>
-          <input
-            type="color"
-            id="colorPicker"
-            value={selectedColor}
-            onChange={handleColorChange}
-          />
-          <button onClick={handleSaveColor}>Guardar Color</button>
-        </div>
-
-        <div className={styles.messages}>
-          {loading ? (
-            <p>Cargando mensajes...</p>
-          ) : (
-            messages.map((msg, index) => (
-              <div key={index} className={styles.message}>
-                <span
-                  className={styles.sender}
-                  style={{ color: userColors[msg.sender] }}
-                >
-                  {msg.sender}:
-                </span>{" "}
-                {msg.text}
+    <>
+      <button 
+        className={styles.chatButton}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        COMUNICATIONS
+      </button>
+      
+      {isOpen && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2 className={styles.chatTitle}>COMUNICATIONS</h2>
+            <button 
+              className={styles.closeButton}
+              onClick={() => setIsOpen(false)}
+            >
+              ×
+            </button>
+            
+            {!user ? (
+              <div className={styles.welcomeContent}>
+                <div className={styles.welcomeMessage}>
+                  <p>Welcome to AMA OS. Please login to access the chat.</p>
+                </div>
+                <form onSubmit={handleLogin} className={styles.loginForm}>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={loginForm.email}
+                    onChange={handleLoginChange}
+                    required
+                    className={styles.loginInput}
+                  />
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={loginForm.password}
+                    onChange={handleLoginChange}
+                    required
+                    className={styles.loginInput}
+                  />
+                  <button type="submit" className={styles.loginButton}>
+                    Login
+                  </button>
+                  {loginError && <p className={styles.error}>{loginError}</p>}
+                </form>
               </div>
-            ))
-          )}
+            ) : (
+              <div className={styles.chatLayout}>
+                <ChatSidebar 
+                  onSelectUser={handleSelectUser}
+                  onSelectChat={handleSelectChat}
+                />
+                
+                <div className={styles.chatContent}>
+                  {selectedUserId ? (
+                    <PrivateChat 
+                      otherUserId={selectedUserId}
+                      onClose={() => setSelectedUserId(null)}
+                    />
+                  ) : selectedChatId ? (
+                    <PrivateChat 
+                      chatId={selectedChatId}
+                      onClose={() => setSelectedChatId(null)}
+                    />
+                  ) : (
+                    <>
+                      <div className={styles.messages}>
+                        {loading ? (
+                          <p>Loading messages...</p>
+                        ) : (
+                          messages.map((message) => (
+                            <div 
+                              key={message.id} 
+                              className={styles.message}
+                            >
+                              <div className={styles.messageHeader}>
+                                {message.profilePicture ? (
+                                  <img 
+                                    src={message.profilePicture} 
+                                    alt={message.userName}
+                                    className={styles.profilePicture}
+                                  />
+                                ) : (
+                                  <div className={styles.profilePicturePlaceholder}>
+                                    {message.userName.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                                <span 
+                                  className={styles.sender}
+                                  style={{ color: message.userColor }}
+                                >
+                                  {message.userName}:
+                                </span> 
+                              </div>
+                              <span className={styles.messageText}>
+                                {message.text}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+
+                      <form onSubmit={handleSubmit} className={styles.inputForm}>
+                        <input
+                          type="text"
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          placeholder="Type a message..."
+                          className={styles.input}
+                        />
+                        <button type="submit" className={styles.sendButton}>
+                          Send
+                        </button>
+                      </form>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-
-        <form onSubmit={handleSendMessage} className={styles.inputForm}>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className={styles.input}
-            placeholder="Escribí un mensaje..."
-          />
-          <button type="submit" className={styles.sendButton}>
-            Enviar
-          </button>
-        </form>
-
-        <button className={styles.closeButton} onClick={onClose}>
-          Cerrar
-        </button>
-      </div>
-    </div>
+      )}
+    </>
   );
-}
+};
+
+export default ChatModal;
