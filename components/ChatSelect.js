@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../firebase/firebaseConfig";
-import { collection, getDocs, query, where, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import styles from "../styles/ChatSelect.module.css";
+import PrivateChat from "./PrivateChat";
 
-export default function ChatSelect({ onSelectChat }) {
+export default function ChatSelect() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersRef = collection(db, "users"); // Suponiendo que tienes una colección de "users"
-      const snapshot = await getDocs(usersRef);
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("uid", "!=", currentUser.uid));
+      const snapshot = await getDocs(q);
       const userList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(userList);
       setLoading(false);
@@ -23,38 +30,53 @@ export default function ChatSelect({ onSelectChat }) {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
 
-    // Generar el chatId único
+    // Generate chatId
     const chatId = [currentUser.uid, selectedUserId].sort().join("_");
+    const chatRef = doc(db, "chats", "privateChats", chatId);
 
-    const chatRef = doc(db, "chats", chatId);
+    // Check if chat exists, if not create it
     const chatSnap = await getDoc(chatRef);
-
-    // Si el chat no existe, lo creamos
     if (!chatSnap.exists()) {
       await setDoc(chatRef, {
-        users: [currentUser.uid, selectedUserId],
-        createdAt: serverTimestamp(),
+        metadata: {
+          participants: [currentUser.uid, selectedUserId],
+          lastMessage: "",
+          lastUpdated: serverTimestamp(),
+        },
       });
     }
 
-    // Pasamos el chatId al componente ChatModal
-    onSelectChat(chatId);
+    setSelectedUserId(selectedUserId);
+    setShowChat(true);
   };
 
   return (
     <div className={styles.chatSelectContainer}>
-      {loading ? (
-        <p>Cargando usuarios...</p>
+      {showChat ? (
+        <PrivateChat 
+          otherUserId={selectedUserId} 
+          onClose={() => setShowChat(false)} 
+        />
       ) : (
-        <ul>
-          {users.map((user) => (
-            <li key={user.id}>
-              <button onClick={() => handleSelectUser(user.id)} className={styles.userButton}>
-                Chatear con {user.name || user.email}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <h3>Select a user to chat with:</h3>
+          {loading ? (
+            <p>Loading users...</p>
+          ) : (
+            <ul className={styles.userList}>
+              {users.map((user) => (
+                <li key={user.id} className={styles.userItem}>
+                  <button 
+                    onClick={() => handleSelectUser(user.id)} 
+                    className={styles.userButton}
+                  >
+                    {user.displayName || user.email}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );

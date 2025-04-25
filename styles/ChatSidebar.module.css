@@ -1,0 +1,118 @@
+.sidebar {
+  width: 300px;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.section {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.userList,
+.conversationList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.userItem,
+.conversationItem {
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.userItem:hover,
+.conversationItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.userName {
+  font-weight: 500;
+  color: #000;
+}
+
+.onlineStatus {
+  width: 8px;
+  height: 8px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+}
+
+.conversationInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.otherUserName {
+  font-weight: 500;
+  color: #000;
+}
+
+.lastMessage {
+  font-size: 0.9rem;
+  color: #000;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lastUpdated {
+  font-size: 0.8rem;
+  color: #000;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+}
+
+.error {
+  color: #ff0000;
+  padding: 1rem;
+  text-align: center;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Scrollbar styling */
+.userList::-webkit-scrollbar,
+.conversationList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.userList::-webkit-scrollbar-track,
+.conversationList::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.userList::-webkit-scrollbar-thumb,
+.conversationList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.userList::-webkit-scrollbar-thumb:hover,
+.conversationList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+} 

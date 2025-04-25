@@ -1,0 +1,40 @@
+@font-face {
+  font-family: 'HornetDisplay';
+  src: url('../fonts/HornetDisplay-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'HornetDisplay';
+  src: url('../fonts/HornetDisplay-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+:root {
+  /* Font families */
+  --font-family-regular: 'HornetDisplay', sans-serif;
+  --font-family-bold: 'HornetDisplay', sans-serif;
+
+  /* Font sizes */
+  --font-size-title: 1.5rem;
+  --font-size-subtitle: 1.2rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.9rem;
+
+  /* Font weights */
+  --font-weight-regular: normal;
+  --font-weight-bold: bold;
+}
+
+/* Global text styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-bold);
+  font-weight: var(--font-weight-bold);
+}
+
+body {
+  font-family: var(--font-family-regular);
+  font-weight: var(--font-weight-regular);
+} 

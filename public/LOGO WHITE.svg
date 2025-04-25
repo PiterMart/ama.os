@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.17 179.32">
+  <defs>
+    <style>
+      .cls-1 {
+        font-family: AronVF-Black, AronVF;
+        font-variation-settings: 'wght' 160, 'ital' 0;
+        font-weight: 800;
+      }
+
+      .cls-2 {
+        font-family: AronVF-Regular, AronVF;
+        font-variation-settings: 'wght' 21, 'ital' 0;
+      }
+
+      .cls-3 {
+        fill: #fff;
+        font-size: 125.24px;
+      }
+    </style>
+  </defs>
+  <text/>
+  <text class="cls-3" transform="translate(28.45 129.54)"><tspan class="cls-1" x="0" y="0">AMA</tspan><tspan class="cls-2" x="332.38" y="0">.os</tspan></text>
+</svg>

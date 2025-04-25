@@ -1,75 +1,261 @@
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+  bottom: 20px;
+  right: 20px;
+  width: 800px;
+  height: 600px;
+  background-color: rgba(255, 255, 255, 0.242);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .modalContent {
-  background-color: #000000;
-  padding: 20px;
-  width: 400px;
-  height: 70vh;
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.chatTitle {
+  margin: 0;
+  padding: 15px;
+  font-size: var(--font-size-subtitle);
+  color: #000000;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--foreground);
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.welcomeContent {
+  padding: 20px;
+  text-align: center;
+}
+
+.welcomeMessage {
+  margin-bottom: 20px;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.loginInput {
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.loginButton {
+  padding: 10px;
+  background-color: rgba(0, 123, 255, 0.8);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background-color: rgba(0, 123, 255, 0.9);
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 10px;
+}
+
+.chatLayout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chatContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  overflow: hidden;
 }
 
 .messages {
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 .message {
   margin-bottom: 10px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.messageHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profilePicture {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profilePicturePlaceholder {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
 .sender {
-  font-weight: bold;
-  color: #4caf50;
+  font-weight: 500;
+}
+
+.messageText {
+  color: #000000;
+  font-size: var(--font-size-body);
 }
 
 .inputForm {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
 }
 
 .input {
-  width: 80%;
+  flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .sendButton {
-  background-color: #4caf50;
-  color: white;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.242);
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
   border: none;
-  padding: 10px 15px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .sendButton:hover {
-  background-color: #45a049;
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
-.closeButton {
-  margin-top: 10px;
-  background-color: #000000;
-  color: white;
-  border: 1px solid whitee;
-  padding: 10px 15px;
+.logoutButton {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.242);
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
+  border: none;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.closeButton:hover {
-  background-color: #e44d4d;
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.chatButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.242);
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
+  border: none;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.chatButton:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar styling */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.chatHeader h3 {
+  margin: 0;
+  font-size: var(--font-size-subtitle);
+  color: #000000;
+}
+
+.typingIndicator {
+  padding: 8px;
+  margin: 5px 0;
+  font-style: italic;
+  color: #666;
+  font-size: var(--font-size-small);
 }
