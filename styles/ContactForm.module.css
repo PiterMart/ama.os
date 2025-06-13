@@ -67,3 +67,19 @@
     gap: 0.5rem;
   }
   
+  .registerLink {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .registerLink a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .registerLink a:hover {
+    text-decoration: underline;
+  }
+  

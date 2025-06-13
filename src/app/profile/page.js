@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, orderBy } from 'firebase/firestore';
+import { useAuth } from '@/contexts/AuthContext';
+import { db, auth } from '@/lib/firebase';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import Image from 'next/image';
@@ -11,6 +11,7 @@ import Link from 'next/link';
 import styles from '@/styles/Profile.module.css';
 import buttonStyles from '@/styles/Buttons.module.css';
 import EmblaCarousel from '@/components/carousel/EmblaCarousel';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // Helper function to extract username from various input formats
 const extractUsername = (input, platform) => {
@@ -31,10 +32,12 @@ const extractUsername = (input, platform) => {
 };
 
 export default function ProfilePage() {
-  const [user, loading] = useAuthState(auth);
+  const { user, loading: authLoading, firebaseUser } = useAuth();
   const [userData, setUserData] = useState(null);
   const [artworks, setArtworks] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     displayName: '',
     bio: '',
@@ -85,23 +88,81 @@ export default function ProfilePage() {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || !user || !firebaseUser) {
+      setUploadError('Please log in to upload images');
+      return;
+    }
 
     try {
-      const storageRef = ref(storage, `profiles/${user.uid}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+      setIsUploading(true);
+      setUploadError(null);
 
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Please upload a valid image file (JPEG, PNG, or WebP)');
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error('Image size must be less than 5MB');
+      }
+
+      // Get the ID token from the firebaseUser
+      const token = await firebaseUser.getIdToken(true);
+      console.log('Got fresh Firebase Auth token');
+
+      // Create a unique filename using timestamp
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `profile_${timestamp}.${fileExtension}`;
+      
+      // Create storage reference with the correct path according to rules
+      const storageRef = ref(storage, `profiles/${user.uid}/${fileName}`);
+      console.log('Storage reference created:', storageRef.fullPath);
+      console.log('User ID:', user.uid);
+      console.log('Storage bucket:', storageRef.bucket);
+      
+      // Upload the file with metadata
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          'uploadedBy': user.uid,
+          'uploadedAt': timestamp.toString(),
+          'originalName': file.name
+        }
+      };
+      
+      console.log('Starting upload with metadata:', metadata);
+      const uploadTask = await uploadBytes(storageRef, file, metadata);
+      console.log('Upload completed:', uploadTask.ref.fullPath);
+      
+      // Get the download URL
+      const downloadURL = await getDownloadURL(uploadTask.ref);
+      console.log('Got download URL:', downloadURL);
+
+      // Update user's profile in Firestore
       await updateDoc(doc(db, 'users', user.uid), {
-        profilePicture: downloadURL
+        profilePicture: downloadURL,
+        updatedAt: serverTimestamp()
       });
 
+      // Update local state
       setUserData(prev => ({
         ...prev,
         profilePicture: downloadURL
       }));
+
+      console.log('Profile picture updated successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.customData);
+      setUploadError(error.message || 'Failed to upload image');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -119,12 +180,19 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
+  if (authLoading) {
     return <div className={styles.loading}>Loading...</div>;
   }
 
   if (!user) {
-    return <div className={styles.notLoggedIn}>Please log in to view your profile.</div>;
+    return (
+      <div className={styles.notLoggedIn}>
+        <p>Please log in to view your profile.</p>
+        <Link href="/auth/login" className={buttonStyles.button}>
+          Log In
+        </Link>
+      </div>
+    );
   }
 
   const artworkSlides = artworks.map(artwork => ({
@@ -152,12 +220,16 @@ export default function ProfilePage() {
             </div>
           )}
           {isEditing && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className={styles.fileInput}
-            />
+            <label className={`${buttonStyles.button} ${buttonStyles.small}`}>
+              Change Photo
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className={styles.fileInput}
+                style={{ display: 'none' }}
+              />
+            </label>
           )}
         </div>
         <div className={styles.profileInfo}>
@@ -215,7 +287,16 @@ export default function ProfilePage() {
                   className={styles.input}
                 />
               </div>
-              <button type="submit" className={`${buttonStyles.button} ${buttonStyles.medium}`}>Save Changes</button>
+              <div className={styles.formActions}>
+                <button type="submit" className={`${buttonStyles.button} ${buttonStyles.medium}`}>Save Changes</button>
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditing(false)} 
+                  className={`${buttonStyles.button} ${buttonStyles.medium} ${buttonStyles.secondary}`}
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           ) : (
             <>
@@ -243,20 +324,22 @@ export default function ProfilePage() {
                   </a>
                 )}
               </div>
+              <div className={styles.profileActions}>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className={`${buttonStyles.button} ${buttonStyles.medium}`}
+                >
+                  Edit Profile
+                </button>
+                <Link 
+                  href="/upload" 
+                  className={`${buttonStyles.button} ${buttonStyles.medium}`}
+                >
+                  Add Artwork
+                </Link>
+              </div>
             </>
           )}
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className={`${buttonStyles.button} ${buttonStyles.medium}`}
-          >
-            {isEditing ? 'Cancel' : 'Edit Profile'}
-          </button>
-          <Link 
-            href="/upload" 
-            className={`${buttonStyles.button} ${buttonStyles.medium}`}
-          >
-            Add Artwork
-          </Link>
         </div>
       </div>
 

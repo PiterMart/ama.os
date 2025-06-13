@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '../src/contexts/AuthContext';
-import styles from '../styles/Navbar.module.css';
+import { useAuth } from '../../src/contexts/AuthContext';
+import styles from '../../styles/Navbar.module.css';
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +14,12 @@ export default function Navbar() {
     const [hasScrolled, setHasScrolled] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
     const currentPath = usePathname();
-    const { user, logout } = useAuth();
+    const { user, logout, loading } = useAuth();
+
+    // Debug logs
+    useEffect(() => {
+        console.log('Navbar - Auth State:', { user, loading });
+    }, [user, loading]);
 
     const pages = [
         { name: 'AMA.OS', path: '/ama.os', delay: '0.2s' },
@@ -44,11 +49,15 @@ export default function Navbar() {
         }
     }, [lastScrollY]);
 
+    if (loading) {
+        return null; // or a loading spinner
+    }
+
     return (
         <div className={`${styles.nav} ${hasScrolled ? styles.nav_scrolled : styles.nav_transparent} ${isVisible ? styles.nav_visible : styles.nav_hidden}`}>
             <Link href="/">
                 <Image
-                    src="/LOGO-BLACK.svg"
+                    src="/LOGO WHITE.svg"
                     alt="AMA.OS"
                     width={0}
                     height={0}
@@ -78,7 +87,7 @@ export default function Navbar() {
                         <>
                             <li>
                                 <span className={styles.userStatus}>
-                                    Signed in as {user.email}
+                                    Signed in as {user.displayName || user.email}
                                 </span>
                             </li>
                             <li>
@@ -93,11 +102,18 @@ export default function Navbar() {
                             </li>
                         </>
                     ) : (
-                        <li>
-                            <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                                Register
-                            </Link>
-                        </li>
+                        <>
+                            <li>
+                                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
+                                    Login
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/auth/register" onClick={() => setIsMenuOpen(false)}>
+                                    Register
+                                </Link>
+                            </li>
+                        </>
                     )}
                 </ul>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db, auth } from "../firebase/firebaseConfig";
+import { db } from "@/lib/firebase";
 import {
   collection,
   addDoc,
@@ -13,9 +13,11 @@ import {
   updateDoc,
   writeBatch,
 } from "firebase/firestore";
-import styles from "../styles/ChatModal.module.css";
+import { useAuth } from "@/contexts/AuthContext";
+import styles from "../../styles/ChatModal.module.css";
 
 export default function PrivateChat({ otherUserId, onClose }) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,6 @@ export default function PrivateChat({ otherUserId, onClose }) {
   const [chatInitialized, setChatInitialized] = useState(false);
   const typingTimeoutRef = useRef(null);
   const bottomRef = useRef(null);
-  const user = auth.currentUser;
 
   const getChatId = (userA, userB) => {
     return [userA, userB].sort().join("_");

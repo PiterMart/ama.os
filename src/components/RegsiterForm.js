@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { auth, db } from "../firebase/firebaseConfig";
+import { auth, db } from "../../firebase/firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"; // Import updateProfile
 import { collection, doc, setDoc, Timestamp } from "firebase/firestore"; // Import doc y setDoc
-import styles from "../styles/ContactForm.module.css";
+import styles from "../../styles/ContactForm.module.css";
 import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function RegisterForm() {

@@ -268,4 +268,25 @@
 .uploadSection {
   margin-top: 2rem;
   text-align: center;
+}
+
+.profileActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.secondary {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.secondary:hover {
+  background-color: var(--secondary-hover-color);
 } 
