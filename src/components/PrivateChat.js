@@ -14,7 +14,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
-import styles from "../styles/ChatModal.module.css";
+import styles from "../../styles/ChatModal.module.css";
 
 export default function PrivateChat({ otherUserId, onClose }) {
   const { user } = useAuth();

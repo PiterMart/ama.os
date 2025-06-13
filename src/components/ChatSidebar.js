@@ -12,7 +12,7 @@ import {
   limit,
 } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
-import styles from "../styles/ChatSidebar.module.css";
+import styles from "../../styles/ChatSidebar.module.css";
 
 export default function ChatSidebar({ onSelectChat, onSelectUser }) {
   const { user } = useAuth();

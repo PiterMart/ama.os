@@ -1,6 +1,6 @@
 import { AuthProvider } from '../../../contexts/AuthContext';
 import { ChatProvider } from '../../../contexts/ChatContext';
-import Navbar from '../../../components/Navbar';
+import Navbar from '../../components/Navbar';
 
 export const metadata = {
   title: 'Authentication - AMA.OS',
@@ -9,15 +9,11 @@ export const metadata = {
 
 export default function AuthLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
-          <ChatProvider>
-            <Navbar />
-            {children}
-          </ChatProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <ChatProvider>
+        <Navbar />
+        {children}
+      </ChatProvider>
+    </AuthProvider>
   );
 } 

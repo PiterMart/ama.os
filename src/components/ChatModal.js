@@ -5,7 +5,7 @@ import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTim
 import { useAuth } from '@/contexts/AuthContext';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import styles from '../styles/ChatModal.module.css';
+import styles from '../../styles/ChatModal.module.css';
 import ChatSidebar from './ChatSidebar';
 import PrivateChat from './PrivateChat';
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db, storage } from '@/lib/firebase';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { db, storage, auth } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from 'next/link';
@@ -10,7 +10,7 @@ import styles from '@/styles/ArtworkUploader.module.css';
 import buttonStyles from '@/styles/Buttons.module.css';
 
 export default function UploadPage() {
-  const [user] = useAuthState(auth);
+  const { user, loading, firebaseUser, error: authError } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -23,6 +23,32 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [links, setLinks] = useState('');
 
+  useEffect(() => {
+    console.log('Upload page - Auth state:', { user, firebaseUser, loading, authError });
+  }, [user, firebaseUser, loading, authError]);
+
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <p>Loading authentication state...</p>
+      </div>
+    );
+  }
+
+  if (!user || !firebaseUser) {
+    return (
+      <div className={styles.notLoggedIn}>
+        <p>You must be logged in to upload artwork.</p>
+        {!user && <p>User profile not found. Please try logging in again.</p>}
+        {!firebaseUser && <p>Firebase authentication not found. Please try logging in again.</p>}
+        {authError && <p className={styles.error}>{authError}</p>}
+        <Link href="/auth/login" className={buttonStyles.button}>
+          Log In
+        </Link>
+      </div>
+    );
+  }
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,7 +59,7 @@ export default function UploadPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
+    if (!user || !firebaseUser) {
       setError('You must be logged in to upload artwork');
       return;
     }
@@ -47,10 +73,27 @@ export default function UploadPage() {
       setIsUploading(true);
       setError('');
 
+      // Get a fresh token from the Firebase user
+      const token = await firebaseUser.getIdToken(true);
+      console.log('Got fresh Firebase Auth token');
+
       // Upload image to Firebase Storage
       const storageRef = ref(storage, `artworks/${user.uid}/${Date.now()}_${imageFile.name}`);
-      const snapshot = await uploadBytes(storageRef, imageFile);
+      const metadata = {
+        contentType: imageFile.type,
+        customMetadata: {
+          'uploadedBy': user.uid,
+          'uploadedAt': Date.now().toString(),
+          'originalName': imageFile.name
+        }
+      };
+      
+      console.log('Starting upload with metadata:', metadata);
+      const snapshot = await uploadBytes(storageRef, imageFile, metadata);
+      console.log('Upload completed:', snapshot.ref.fullPath);
+      
       const imageUrl = await getDownloadURL(snapshot.ref);
+      console.log('Got download URL:', imageUrl);
 
       // Save artwork data to Firestore
       await addDoc(collection(db, 'artworks'), {
@@ -77,7 +120,10 @@ export default function UploadPage() {
       setPreviewUrl('');
       setError('Artwork uploaded successfully!');
     } catch (err) {
-      setError(err.message);
+      console.error('Upload error:', err);
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+      setError(err.message || 'Failed to upload artwork');
     } finally {
       setIsUploading(false);
     }

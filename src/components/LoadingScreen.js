@@ -1,6 +1,6 @@
 // components/LoadingScreen.js
 import React, { useState, useEffect, useRef } from 'react';
-import styles from '../styles/LoadingScreen.module.css';
+import styles from '../../styles/LoadingScreen.module.css';
 
 const loadingTextSequence = [
   "[AMA OS v3.4.7 - Vision Boot Sequence Initiated]",

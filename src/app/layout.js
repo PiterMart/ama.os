@@ -2,8 +2,8 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { ChatProvider } from '../contexts/ChatContext';
 import '../app/globals.css';
 import styles from "./page.module.css";
-import Navbar from '../../components/Navbar';
-import ChatModal from '../../components/ChatModal';
+import Navbar from '../components/Navbar';
+import ChatModal from '../components/ChatModal';
 
 export const metadata = {
   title: 'AMA.OS',

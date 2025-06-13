@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '../src/contexts/AuthContext';
-import styles from '../styles/Navbar.module.css';
+import { useAuth } from '../../src/contexts/AuthContext';
+import styles from '../../styles/Navbar.module.css';
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);

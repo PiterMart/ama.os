@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { db, auth } from "../firebase/firebaseConfig";
 import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import styles from "../styles/ChatSelect.module.css";
-import PrivateChat from "./PrivateChat";
+import PrivateChat from "../src/components/PrivateChat";
 
 export default function ChatSelect() {
   const [users, setUsers] = useState([]);

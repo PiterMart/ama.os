@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { useAuth } from "../src/contexts/AuthContext";
-import RegisterForm from "./RegsiterForm";
+import { useAuth } from "../../src/contexts/AuthContext";
+import RegisterForm from "../../src/components/RegsiterForm";
 import Link from "next/link";
-import styles from "../styles/ContactForm.module.css";
+import styles from "../../styles/ContactForm.module.css";
 
 export default function AuthForm({ isLogin = true }) {
   const [form, setForm] = useState({

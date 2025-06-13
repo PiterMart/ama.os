@@ -25,7 +25,13 @@ export async function GET() {
         if (!userDoc.exists()) {
             // If no Firestore profile exists, force logout
             console.log('Session check - No Firestore profile, forcing logout');
-            cookies().delete('session');
+            cookies().set('session', '', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 0
+            });
             return NextResponse.json({ user: null });
         }
 
@@ -40,7 +46,13 @@ export async function GET() {
     } catch (error) {
         console.error('Session check failed:', error);
         // Clear invalid session
-        cookies().delete('session');
+        cookies().set('session', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 0
+        });
         return NextResponse.json({ user: null });
     }
 } 
