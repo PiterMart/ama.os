@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "../../../firebase/firebaseConfig";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import NewsletterForm from "../../../components/NewsletterForm";
+import NewsletterForm from "../../components/NewsletterForm";
 import styles from "../../../styles/AdminDashboard.module.css";
 
 export default function AdminDashboard() {
