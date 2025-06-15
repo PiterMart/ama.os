@@ -1,4 +1,4 @@
-import { db, collection, addDoc, getDocs, serverTimestamp, query, orderBy } from "../../../firebase/firebaseConfig";
+import { db, collection, addDoc, getDocs, serverTimestamp, query, orderBy } from "../../../../firebase/firebaseConfig";
 
 export async function GET() {
   try {

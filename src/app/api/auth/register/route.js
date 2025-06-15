@@ -1,4 +1,4 @@
-import { adminAuth, adminDb } from "../../../firebase/firebaseAdmin";
+import { adminAuth, adminDb } from "../../../../../firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
 import nodemailer from "nodemailer";
 
