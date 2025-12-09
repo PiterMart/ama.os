@@ -51,7 +51,14 @@ export function AuthProvider({ children }) {
                 setUser(null);
                 setError(null);
             }
-            setLoading(false);
+            
+            // Ensure minimum loading time for aesthetic purposes
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+            
+            setTimeout(() => {
+                setLoading(false);
+            }, remainingTime);
         });
 
         return () => unsubscribe();

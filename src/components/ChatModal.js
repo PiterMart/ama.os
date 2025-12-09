@@ -20,6 +20,8 @@ const ChatModal = () => {
   const [loginError, setLoginError] = useState(null);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [activeTab, setActiveTab] = useState('global'); // 'global' or 'conversations'
+  const [showSidebar, setShowSidebar] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Update user's online status
@@ -175,33 +177,58 @@ const ChatModal = () => {
     console.log("User selected:", userId);
     setSelectedUserId(userId);
     setSelectedChatId(null);
+    setShowSidebar(false);
   };
 
   const handleSelectChat = (chatId) => {
     console.log("Chat selected:", chatId);
     setSelectedChatId(chatId);
     setSelectedUserId(null);
+    setShowSidebar(false);
+  };
+
+  const handleBackToGlobal = () => {
+    setSelectedUserId(null);
+    setSelectedChatId(null);
+    setActiveTab('global');
+  };
+
+  const handleBackToConversations = () => {
+    setSelectedUserId(null);
+    setSelectedChatId(null);
+    setActiveTab('conversations');
   };
 
   return (
     <>
       <button 
-        className={styles.chatButton}
+        className={`${styles.chatButton} ${isOpen ? styles.open : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        COMUNICATIONS
+        <span className={styles.bar}></span>
       </button>
       
       {isOpen && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h2 className={styles.chatTitle}>COMUNICATIONS</h2>
-            <button 
-              className={styles.closeButton}
-              onClick={() => setIsOpen(false)}
-            >
-              ×
-            </button>
+            {/* Header */}
+            <div className={styles.header}>
+              <button 
+                className={styles.closeButton}
+                onClick={() => setIsOpen(false)}
+              >
+                ×
+              </button>
+              <h2 className={styles.title}>COMMUNICATIONS</h2>
+              {user && (selectedUserId || selectedChatId) && (
+                <button 
+                  className={styles.backButton}
+                  onClick={selectedUserId || selectedChatId ? handleBackToGlobal : () => setShowSidebar(!showSidebar)}
+                >
+                  ←
+                </button>
+              )}
+            </div>
             
             {!user ? (
               <div className={styles.welcomeContent}>
@@ -234,24 +261,41 @@ const ChatModal = () => {
                 </form>
               </div>
             ) : (
-              <div className={styles.chatLayout}>
-                <ChatSidebar 
-                  onSelectUser={handleSelectUser}
-                  onSelectChat={handleSelectChat}
-                />
-                
+              <>
+                {/* Tab Navigation */}
+                {!selectedUserId && !selectedChatId && (
+                  <div className={styles.tabNavigation}>
+                    <div className={styles.tabContainer}>
+                      <button 
+                        className={`${styles.tabButton} ${activeTab === 'global' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('global')}
+                      >
+                        GLOBAL
+                      </button>
+                      <button 
+                        className={`${styles.tabButton} ${activeTab === 'conversations' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('conversations')}
+                      >
+                        CONVERSATIONS
+                      </button>
+                      <div className={`${styles.tabIndicator} ${activeTab === 'global' ? styles.indicatorLeft : styles.indicatorRight}`}></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Chat Content */}
                 <div className={styles.chatContent}>
                   {selectedUserId ? (
                     <PrivateChat 
                       otherUserId={selectedUserId}
-                      onClose={() => setSelectedUserId(null)}
+                      onClose={handleBackToGlobal}
                     />
                   ) : selectedChatId ? (
                     <PrivateChat 
                       chatId={selectedChatId}
-                      onClose={() => setSelectedChatId(null)}
+                      onClose={handleBackToGlobal}
                     />
-                  ) : (
+                  ) : activeTab === 'global' ? (
                     <>
                       <div className={styles.messages}>
                         {loading ? (
@@ -303,9 +347,14 @@ const ChatModal = () => {
                         </button>
                       </form>
                     </>
+                  ) : (
+                    <ChatSidebar 
+                      onSelectUser={handleSelectUser}
+                      onSelectChat={handleSelectChat}
+                    />
                   )}
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>

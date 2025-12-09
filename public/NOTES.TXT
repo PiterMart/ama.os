@@ -1,0 +1,15 @@
+BUTTONS WHEN HOVERED CHANGE FONT FROM MONOSPACE TO GOTHIC
+logo animation after effects for hero section
+menu writing animation on slide
+chat responsiveness
+
+
+
+SITE SHOULD: 
+            DISPLAY ARTWORKS
+            DISPLAY MUSIC RELEASES
+            HAVE A BLOG/NEWS
+            ACCOUNT CREATION
+            PROFILE MANAGEMENT
+            ARTWORK UPLOADING (ONLY FOR CERTIFIED ARTISTS)
+                      

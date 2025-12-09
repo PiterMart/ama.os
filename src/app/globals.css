@@ -12,12 +12,19 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "VCR";
+  src: url('/fonts/VCR_OSD_MONO_1.001.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 :root {
   --background: #0f0f0f;
   --foreground: #171717;
 
   /* Font families */
-  --font-family-regular: 'HornetDisplay', sans-serif;
+  --font-family-regular: 'VCR', sans-serif;
   --font-family-bold: 'HornetDisplay', sans-serif;
 
   /* Font sizes */
