@@ -2,7 +2,7 @@
 .nav {
   font-family: "VCR";
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   position: fixed;
   font-weight: 300;
@@ -47,16 +47,18 @@
 
 /* Menu Button - Always visible */
 .navButton {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: block;
   width: 100%;
+  max-width: 100%;
   height: 19px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
   z-index: 100;
+  position: relative;
+  margin: 0;
+  flex: 1;
 }
 
 .navButton .bar {
@@ -65,8 +67,12 @@
   height: 2px;
   background-color: var(--foreground);
   transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-  position: relative;
+  position: absolute;
   transform-origin: center;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  opacity: 1;
 }
 
 /* Single line animation: line disappears when menu opens */
