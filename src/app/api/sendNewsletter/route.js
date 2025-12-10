@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { db } from "../../../firebase/firebaseConfig";
+import { db } from "../../../../firebase/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 
 export async function POST(request) {

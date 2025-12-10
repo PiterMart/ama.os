@@ -23,9 +23,6 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [links, setLinks] = useState('');
 
-  useEffect(() => {
-    console.log('Upload page - Auth state:', { user, firebaseUser, loading, authError });
-  }, [user, firebaseUser, loading, authError]);
 
   if (loading) {
     return (
@@ -75,7 +72,6 @@ export default function UploadPage() {
 
       // Get a fresh token from the Firebase user
       const token = await firebaseUser.getIdToken(true);
-      console.log('Got fresh Firebase Auth token');
 
       // Upload image to Firebase Storage
       const storageRef = ref(storage, `artworks/${user.uid}/${Date.now()}_${imageFile.name}`);
@@ -88,12 +84,8 @@ export default function UploadPage() {
         }
       };
       
-      console.log('Starting upload with metadata:', metadata);
       const snapshot = await uploadBytes(storageRef, imageFile, metadata);
-      console.log('Upload completed:', snapshot.ref.fullPath);
-      
       const imageUrl = await getDownloadURL(snapshot.ref);
-      console.log('Got download URL:', imageUrl);
 
       // Save artwork data to Firestore
       await addDoc(collection(db, 'artworks'), {

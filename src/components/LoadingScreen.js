@@ -89,23 +89,31 @@ const LoadingScreen = () => {
       }, []);
 
     useEffect(() => {
-            const logoFadeInTimer = setTimeout(() => {
-              if (logoAnimationRef.current) {
-                logoAnimationRef.current.classList.add(styles.fadeIn);
-              }
-            }, 500);
+        const logoFadeInTimer = setTimeout(() => {
+          if (logoAnimationRef.current) {
+            logoAnimationRef.current.classList.add(styles.fadeIn);
+          }
+        }, 500);
         
-            const restFadeInTimer = setTimeout(() => {
-              if (restElementsRef.current) {
-                restElementsRef.current.classList.add(styles.restFadeIn);
-              }
-            }, 500); // Aumentamos el delay a 3 segundos
+        const triangleFadeInTimer = setTimeout(() => {
+          const triangleLogo = document.querySelector(`.${styles.triangleLogo}`);
+          if (triangleLogo) {
+            triangleLogo.classList.add(styles.fadeIn);
+          }
+        }, 500);
         
-            return () => {
-              clearTimeout(logoFadeInTimer);
-              clearTimeout(restFadeInTimer);
-            };
-          }, []);
+        const restFadeInTimer = setTimeout(() => {
+          if (restElementsRef.current) {
+            restElementsRef.current.classList.add(styles.restFadeIn);
+          }
+        }, 500); // Aumentamos el delay a 3 segundos
+        
+        return () => {
+          clearTimeout(logoFadeInTimer);
+          clearTimeout(triangleFadeInTimer);
+          clearTimeout(restFadeInTimer);
+        };
+      }, []);
 
       useEffect(() => {
         if (textIndex < loadingTextSequence.length) {
@@ -124,24 +132,34 @@ const LoadingScreen = () => {
             return null;
           }
         
-          return (
-                <div className={`${styles.loadingContainer} ${fadeOut ? styles.fadeOut : ''}`}>
-                  <div className={styles.logoAnimation} ref={logoAnimationRef}> {/* Añade la referencia al logo */}
-                    <img src="/LOGO-BLACK.png" alt="Logo" />
-                  </div>
-                  <div ref={restElementsRef} className={styles.restElements}> {/* Contenedor para el resto */}
-                    <div className={styles.progressBar}>
-                      <div className={styles.progress} key={loadingProgress} style={{ width: `${loadingProgress}%` }}></div>
-                    </div>
-                    <p className={styles.loadingText}>Cargando... {progressPercent}%</p>
-                    <div className={styles.consoleText} ref={consoleTextRef}>
-                      {animatedText.map((line, index) => (
-                        <p key={index}>{line}</p>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              );
+        return (
+            <div className={`${styles.loadingContainer} ${fadeOut ? styles.fadeOut : ''}`}>
+              <div className={styles.contentContainer}>
+                <div className={styles.triangleLogo}>
+                  <img src="/triangle logo.png" alt="Triangle Logo" />
+                </div>
+                <div className={styles.logoAnimation} ref={logoAnimationRef}> {/* Añade la referencia al logo */}
+                  <img src="/LOGO-BLACK.png" alt="Logo" />
+                </div>
+                <div ref={restElementsRef} className={styles.restElements}> {/* Contenedor para el resto */}
+                  <div className={styles.progressBar}>
+                    <div className={styles.progress} key={loadingProgress} style={{ width: `${loadingProgress}%` }}></div>
+                  </div>
+                  <p className={styles.loadingText}>Cargando... {progressPercent}%</p>
+                  <div className={styles.consoleContainer}>
+                    <div className={styles.consoleText} ref={consoleTextRef}>
+                      {animatedText.map((line, index) => (
+                        <p key={index}>{line}</p>
+                        ))}
+                    </div>
+                    <div className={styles.warningImage}>
+                      <img src="/warning.png" alt="Warning" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
             };
         
         export default LoadingScreen;

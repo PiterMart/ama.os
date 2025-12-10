@@ -35,19 +35,16 @@ export default function PrivateChat({ otherUserId, onClose }) {
   // Initialize chat and typing documents
   const initializeChat = async () => {
     if (!user || !otherUserId) {
-      console.log("Missing user or otherUserId:", { user, otherUserId });
       return;
     }
 
     try {
       const chatId = getChatId(user.uid, otherUserId);
-      console.log("Initializing chat with ID:", chatId);
       
       const chatRef = doc(db, "chats", chatId);
       const chatSnap = await getDoc(chatRef);
 
       if (!chatSnap.exists()) {
-        console.log("Creating new chat document");
         const batch = writeBatch(db);
         
         // Create chat document
@@ -67,9 +64,6 @@ export default function PrivateChat({ otherUserId, onClose }) {
         batch.set(otherUserTypingRef, { isTyping: false });
 
         await batch.commit();
-        console.log("Chat initialization completed successfully");
-      } else {
-        console.log("Chat document already exists");
       }
 
       setChatInitialized(true);
@@ -82,11 +76,9 @@ export default function PrivateChat({ otherUserId, onClose }) {
 
   useEffect(() => {
     if (!user || !otherUserId) {
-      console.log("Skipping chat setup - missing user or otherUserId");
       return;
     }
 
-    console.log("Starting chat setup with user:", user.uid, "and other user:", otherUserId);
     setLoading(true);
 
     // Initialize chat first
@@ -99,8 +91,6 @@ export default function PrivateChat({ otherUserId, onClose }) {
         const otherUserDoc = await getDoc(otherUserRef);
         if (otherUserDoc.exists()) {
           setOtherUserData(otherUserDoc.data());
-        } else {
-          console.log("Other user document not found");
         }
       } catch (error) {
         console.error("Error fetching other user data:", error);
@@ -114,11 +104,8 @@ export default function PrivateChat({ otherUserId, onClose }) {
     const messagesRef = collection(chatRef, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
 
-    console.log("Setting up message listener");
-
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        console.log("Message snapshot received");
         const msgs = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
@@ -151,7 +138,6 @@ export default function PrivateChat({ otherUserId, onClose }) {
     );
 
     return () => {
-      console.log("Cleaning up chat listeners");
       unsubscribe();
       typingUnsubscribe();
       // Clear typing status when leaving
@@ -166,7 +152,6 @@ export default function PrivateChat({ otherUserId, onClose }) {
 
   const handleInputChange = (e) => {
     if (!chatInitialized) {
-      console.log("Chat not initialized yet, ignoring input");
       return;
     }
     
@@ -199,18 +184,10 @@ export default function PrivateChat({ otherUserId, onClose }) {
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !user || !otherUserId || !chatInitialized) {
-      console.log("Cannot send message:", {
-        hasMessage: !!newMessage.trim(),
-        hasUser: !!user,
-        hasOtherUser: !!otherUserId,
-        isInitialized: chatInitialized
-      });
       return;
     }
 
     const chatId = getChatId(user.uid, otherUserId);
-    console.log("Sending message to chat:", chatId);
-
     const chatRef = doc(db, "chats", chatId);
     const messagesRef = collection(chatRef, "messages");
 

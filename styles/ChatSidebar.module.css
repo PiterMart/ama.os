@@ -17,7 +17,7 @@
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #000;
+  color: white;
 }
 
 .userList,
@@ -36,6 +36,9 @@
   transition: background-color 0.2s;
   background-color: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgb(255 255 255 / 0%);
+  border: 1px solid rgb(255 255 255);
+  color: white;
 }
 
 .userItem:hover,
@@ -47,6 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: white;
 }
 
 .userName {
