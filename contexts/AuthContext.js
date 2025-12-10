@@ -10,21 +10,46 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         // Check for existing session
+        const startTime = Date.now();
+        const minLoadingTime = 500; // Minimum loading time in milliseconds
+        let timeoutId = null;
+        let isMounted = true;
+        
         const checkAuth = async () => {
             try {
                 const response = await fetch('/api/auth/session');
                 if (response.ok) {
                     const data = await response.json();
-                    setUser(data.user);
+                    if (isMounted) {
+                        setUser(data.user);
+                    }
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
             } finally {
-                setLoading(false);
+                // Ensure minimum loading time for aesthetic purposes
+                if (isMounted) {
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+                    
+                    timeoutId = setTimeout(() => {
+                        if (isMounted) {
+                            setLoading(false);
+                        }
+                    }, remainingTime);
+                }
             }
         };
 
         checkAuth();
+
+        // Cleanup function to clear timeout if component unmounts
+        return () => {
+            isMounted = false;
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
     }, []);
 
     const login = async (email, password) => {

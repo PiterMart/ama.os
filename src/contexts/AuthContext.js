@@ -17,6 +17,13 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         console.log('AuthProvider - Initializing');
         
+        // Track start time for minimum loading duration
+        const startTime = Date.now();
+        // Match LoadingScreen animation duration (9000ms) + fadeOut (500ms) = 9500ms
+        const minLoadingTime = 9600; // Minimum loading time in milliseconds (slightly longer than LoadingScreen)
+        let timeoutId = null;
+        let isMounted = true;
+        
         // Set up Firebase auth state listener
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             console.log('AuthProvider - Firebase auth state changed:', firebaseUser?.uid);
@@ -34,34 +41,52 @@ export function AuthProvider({ children }) {
                             email: firebaseUser.email,
                             ...userDoc.data()
                         };
-                        setUser(userData);
-                        setError(null);
+                        if (isMounted) {
+                            setUser(userData);
+                            setError(null);
+                        }
                     } else {
                         console.log('AuthProvider - No Firestore profile, signing out');
                         await signOut(auth);
-                        setUser(null);
-                        setError('User profile not found. Please register first.');
+                        if (isMounted) {
+                            setUser(null);
+                            setError('User profile not found. Please register first.');
+                        }
                     }
                 } catch (error) {
                     console.error('AuthProvider - Profile check failed:', error);
-                    setError(error.message || 'Authentication failed');
-                    setUser(null);
+                    if (isMounted) {
+                        setError(error.message || 'Authentication failed');
+                        setUser(null);
+                    }
                 }
             } else {
-                setUser(null);
-                setError(null);
+                if (isMounted) {
+                    setUser(null);
+                    setError(null);
+                }
             }
             
             // Ensure minimum loading time for aesthetic purposes
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-            
-            setTimeout(() => {
-                setLoading(false);
-            }, remainingTime);
+            if (isMounted) {
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+                
+                timeoutId = setTimeout(() => {
+                    if (isMounted) {
+                        setLoading(false);
+                    }
+                }, remainingTime);
+            }
         });
 
-        return () => unsubscribe();
+        return () => {
+            isMounted = false;
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            unsubscribe();
+        };
     }, []);
 
     const login = async (email, password) => {
