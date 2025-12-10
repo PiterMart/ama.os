@@ -224,10 +224,47 @@ export default function PrivateChat({ otherUserId, onClose }) {
     }
   };
 
+  // Group consecutive messages from the same user
+  const groupMessages = (messages) => {
+    if (!messages || messages.length === 0) return [];
+    
+    const grouped = [];
+    let currentGroup = null;
+    
+    messages.forEach((message, index) => {
+      const prevMessage = index > 0 ? messages[index - 1] : null;
+      const isSameUser = prevMessage && prevMessage.userId === message.userId;
+      
+      if (isSameUser && currentGroup) {
+        // Add to existing group
+        currentGroup.messages.push(message.text);
+      } else {
+        // Start new group
+        if (currentGroup) {
+          grouped.push(currentGroup);
+        }
+        currentGroup = {
+          id: message.id,
+          userId: message.userId,
+          userName: message.userName,
+          userColor: message.userColor,
+          profilePicture: message.profilePicture,
+          messages: [message.text],
+        };
+      }
+    });
+    
+    if (currentGroup) {
+      grouped.push(currentGroup);
+    }
+    
+    return grouped;
+  };
+
   return (
     <div className={styles.chatContent}>
       <div className={styles.chatHeader}>
-        <h3>{otherUserData?.displayName || "User"}</h3>
+        <span className={styles.otherUserName}>{otherUserData?.displayName || otherUserData?.userName || "User"}</span>
         <button onClick={onClose} className={styles.closeButton}>
           ×
         </button>
@@ -237,30 +274,27 @@ export default function PrivateChat({ otherUserId, onClose }) {
         {loading ? (
           <p>Loading messages...</p>
         ) : (
-          messages.map((msg) => (
-            <div key={msg.id} className={styles.message}>
-              <div className={styles.messageHeader}>
-                {msg.profilePicture ? (
-                  <img
-                    src={msg.profilePicture}
-                    alt={msg.userName}
-                    className={styles.profilePicture}
-                  />
-                ) : (
-                  <div className={styles.profilePicturePlaceholder}>
-                    {(msg.userName || "A").charAt(0).toUpperCase()}
+          groupMessages(messages).map((group, groupIndex) => {
+            const isCurrentUser = group.userId === user?.uid;
+            return (
+              <div key={group.id || groupIndex} className={`${styles.message} ${isCurrentUser ? styles.messageOwn : ''}`}>
+                <div className={styles.messageHeader}>
+                  <span className={styles.messageText}>
+                    {group.messages[0]}
+                  </span>
+                </div>
+                {group.messages.length > 1 && (
+                  <div className={`${styles.messageGroup} ${isCurrentUser ? styles.messageGroupOwn : ''}`}>
+                    {group.messages.slice(1).map((text, msgIndex) => (
+                      <span key={msgIndex + 1} className={styles.messageText}>
+                        {text}
+                      </span>
+                    ))}
                   </div>
                 )}
-                <span
-                  className={styles.sender}
-                  style={{ color: msg.userColor }}
-                >
-                  {msg.userName}:
-                </span>
               </div>
-              <span className={styles.messageText}>{msg.text}</span>
-            </div>
-          ))
+            );
+          })
         )}
         {otherUserTyping && (
           <div className={styles.typingIndicator}>

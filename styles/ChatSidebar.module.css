@@ -2,15 +2,16 @@
   width: 300px;
   height: 100%;
   background-color: rgba(255, 255, 255, 0);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  color: white;
 }
 
 .section {
   padding: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .section h3 {
@@ -27,6 +28,12 @@
   gap: 0.5rem;
   max-height: 300px;
   overflow-y: auto;
+  color: white;
+}
+
+.userList p,
+.conversationList p {
+  color: white;
 }
 
 .userItem,
@@ -55,7 +62,7 @@
 
 .userName {
   font-weight: 500;
-  color: #000;
+  color: white;
 }
 
 .onlineStatus {
@@ -73,12 +80,12 @@
 
 .otherUserName {
   font-weight: 500;
-  color: #000;
+  color: white;
 }
 
 .lastMessage {
   font-size: 0.9rem;
-  color: #000;
+  color: white;
   opacity: 0.8;
   white-space: nowrap;
   overflow: hidden;
@@ -87,7 +94,7 @@
 
 .lastUpdated {
   font-size: 0.8rem;
-  color: #000;
+  color: white;
   opacity: 0.6;
   margin-top: 0.25rem;
 }
