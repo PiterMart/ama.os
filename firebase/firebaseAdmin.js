@@ -15,7 +15,8 @@ if (process.env.NODE_ENV === "development") {
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     privateKey: privateKey ? privateKey.replace(/\\n/g, '\n') : undefined,
   };
-  console.log("Service Account en Vercel:", serviceAccount); // Esta línea también estaba
+  // Don't log service account with private key for security
+  console.log("Service Account initialized for project:", serviceAccount.projectId);
 }
 
 if (!admin.apps || !admin.apps.length) {
