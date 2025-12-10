@@ -111,7 +111,6 @@ export default function ProfilePage() {
 
       // Get the ID token from the firebaseUser
       const token = await firebaseUser.getIdToken(true);
-      console.log('Got fresh Firebase Auth token');
 
       // Create a unique filename using timestamp
       const timestamp = Date.now();
@@ -120,9 +119,6 @@ export default function ProfilePage() {
       
       // Create storage reference with the correct path according to rules
       const storageRef = ref(storage, `profiles/${user.uid}/${fileName}`);
-      console.log('Storage reference created:', storageRef.fullPath);
-      console.log('User ID:', user.uid);
-      console.log('Storage bucket:', storageRef.bucket);
       
       // Upload the file with metadata
       const metadata = {
@@ -134,13 +130,10 @@ export default function ProfilePage() {
         }
       };
       
-      console.log('Starting upload with metadata:', metadata);
       const uploadTask = await uploadBytes(storageRef, file, metadata);
-      console.log('Upload completed:', uploadTask.ref.fullPath);
       
       // Get the download URL
       const downloadURL = await getDownloadURL(uploadTask.ref);
-      console.log('Got download URL:', downloadURL);
 
       // Update user's profile in Firestore
       await updateDoc(doc(db, 'users', user.uid), {
@@ -153,8 +146,6 @@ export default function ProfilePage() {
         ...prev,
         profilePicture: downloadURL
       }));
-
-      console.log('Profile picture updated successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
       console.error('Error code:', error.code);

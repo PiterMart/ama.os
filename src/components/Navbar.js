@@ -21,10 +21,6 @@ export default function Navbar() {
     const menuRef = useRef(null);
     const buttonRef = useRef(null);
 
-    // Debug logs
-    useEffect(() => {
-        console.log('Navbar - Auth State:', { user, loading });
-    }, [user, loading]);
 
     // Check if we're on desktop
     useEffect(() => {

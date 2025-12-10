@@ -53,21 +53,15 @@ export default function ChatSidebar({ onSelectChat, onSelectUser }) {
       where("metadata.participants", "array-contains", user.uid)
     );
 
-    console.log("Setting up conversation listener for user:", user.uid);
-
     const unsubscribeConversations = onSnapshot(conversationsQuery, 
       async (snapshot) => {
         try {
-          console.log("Received conversations snapshot:", snapshot.docs.length, "docs");
-          
           const convos = await Promise.all(
             snapshot.docs.map(async (chatDoc) => {
               const data = chatDoc.data();
-              console.log("Processing chat:", chatDoc.id, "Data:", data);
               
               // Check if this is a global chat
               if (data.metadata?.isGlobal) {
-                console.log("Found global chat:", chatDoc.id);
                 return {
                   id: chatDoc.id,
                   lastMessage: data.metadata?.lastMessage || "",
@@ -83,10 +77,8 @@ export default function ChatSidebar({ onSelectChat, onSelectUser }) {
               // For private chats
               try {
                 const otherUserId = data.metadata?.participants?.find((id) => id !== user.uid);
-                console.log("Private chat participants:", data.metadata?.participants, "Other user:", otherUserId);
                 
                 if (!otherUserId) {
-                  console.warn("No other participant found in chat:", chatDoc.id);
                   return null;
                 }
 
@@ -95,12 +87,10 @@ export default function ChatSidebar({ onSelectChat, onSelectUser }) {
                 const otherUserDoc = await getDoc(otherUserRef);
                 
                 if (!otherUserDoc.exists()) {
-                  console.warn("Other user document not found:", otherUserId);
                   return null;
                 }
 
                 const otherUserData = otherUserDoc.data();
-                console.log("Other user data:", otherUserData);
 
                 // Get the last message
                 let lastMessage = data.metadata?.lastMessage || "";
@@ -111,9 +101,8 @@ export default function ChatSidebar({ onSelectChat, onSelectUser }) {
                   if (!messagesSnapshot.empty) {
                     lastMessage = messagesSnapshot.docs[0].data().content;
                   }
-                  console.log("Last message for chat", chatDoc.id, ":", lastMessage);
                 } catch (error) {
-                  console.warn("Error fetching last message:", error);
+                  // Silently handle error fetching last message
                 }
 
                 return {
@@ -136,8 +125,6 @@ export default function ChatSidebar({ onSelectChat, onSelectUser }) {
           
           // Filter out any null conversations and sort by lastUpdated
           const validConversations = convos.filter(convo => convo !== null);
-          console.log("Valid conversations:", validConversations.length);
-          console.log("Conversation details:", validConversations);
           
           validConversations.sort((a, b) => {
             const timeA = a.lastUpdated?.toDate?.() || new Date(0);

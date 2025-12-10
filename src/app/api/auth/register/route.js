@@ -3,8 +3,6 @@ import { Timestamp } from "firebase-admin/firestore";
 import nodemailer from "nodemailer";
 
 export async function POST(request) {
-  console.log("Valor de FIREBASE_PROJECT_ID en Vercel:", process.env.FIREBASE_PROJECT_ID);
-  
   try {
     const { username, email, password } = await request.json();
 

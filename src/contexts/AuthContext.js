@@ -15,8 +15,6 @@ export function AuthProvider({ children }) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        console.log('AuthProvider - Initializing');
-        
         // Track start time for minimum loading duration
         const startTime = Date.now();
         // Match LoadingScreen animation duration (9000ms) + fadeOut (500ms) = 9500ms
@@ -26,14 +24,12 @@ export function AuthProvider({ children }) {
         
         // Set up Firebase auth state listener
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            console.log('AuthProvider - Firebase auth state changed:', firebaseUser?.uid);
             setFirebaseUser(firebaseUser);
             
             if (firebaseUser) {
                 try {
                     // Get Firestore profile
                     const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-                    console.log('AuthProvider - Firestore profile exists:', userDoc.exists());
                     
                     if (userDoc.exists()) {
                         const userData = {
@@ -46,7 +42,6 @@ export function AuthProvider({ children }) {
                             setError(null);
                         }
                     } else {
-                        console.log('AuthProvider - No Firestore profile, signing out');
                         await signOut(auth);
                         if (isMounted) {
                             setUser(null);
@@ -90,7 +85,6 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (email, password) => {
-        console.log('AuthProvider - Login attempt for:', email);
         try {
             setError(null);
             setLoading(true);
@@ -126,7 +120,6 @@ export function AuthProvider({ children }) {
     };
 
     const logout = async () => {
-        console.log('AuthProvider - Logout attempt');
         try {
             setLoading(true);
             await signOut(auth);

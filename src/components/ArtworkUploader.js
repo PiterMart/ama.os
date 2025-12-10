@@ -140,18 +140,8 @@ export default function ArtworkUploader() {
         }
       };
       
-      console.log('Uploading file:', {
-        path: `artworks/${fileName}`,
-        type: file.type,
-        size: file.size,
-        metadata
-      });
-      
       const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
-      console.log('Upload successful:', snapshot);
-      
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log('Download URL:', downloadURL);
 
       // Save artwork data to Firestore
       await addDoc(collection(db, 'artworks'), {

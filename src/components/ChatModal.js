@@ -174,14 +174,12 @@ const ChatModal = () => {
   };
 
   const handleSelectUser = (userId) => {
-    console.log("User selected:", userId);
     setSelectedUserId(userId);
     setSelectedChatId(null);
     setShowSidebar(false);
   };
 
   const handleSelectChat = (chatId) => {
-    console.log("Chat selected:", chatId);
     setSelectedChatId(chatId);
     setSelectedUserId(null);
     setShowSidebar(false);
