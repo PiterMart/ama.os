@@ -349,7 +349,7 @@ export default function ProfilePage() {
           <EmblaCarousel slides={artworkSlides} />
         ) : (
           <div className={styles.noArtworks}>
-            <p>You haven't uploaded any artworks yet.</p>
+            <p>You haven&apos;t uploaded any artworks yet.</p>
             <Link href="/upload" className={`${buttonStyles.button} ${buttonStyles.medium}`}>
               Upload Your First Artwork
             </Link>
