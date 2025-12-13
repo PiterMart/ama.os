@@ -14,6 +14,7 @@ const ChatModal = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userColor, setUserColor] = useState('#007bff');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -23,6 +24,9 @@ const ChatModal = () => {
   const [activeTab, setActiveTab] = useState('global'); // 'global' or 'conversations'
   const [showSidebar, setShowSidebar] = useState(false);
   const messagesEndRef = useRef(null);
+  const modalRef = useRef(null);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragOffset, setDragOffset] = useState(0);
 
   // Update user's online status
   useEffect(() => {
@@ -197,27 +201,138 @@ const ChatModal = () => {
     setActiveTab('conversations');
   };
 
+  // Group consecutive messages from the same user
+  const groupMessages = (messages) => {
+    if (!messages || messages.length === 0) return [];
+    
+    const grouped = [];
+    let currentGroup = null;
+    
+    messages.forEach((message, index) => {
+      const prevMessage = index > 0 ? messages[index - 1] : null;
+      const isSameUser = prevMessage && prevMessage.userId === message.userId;
+      
+      if (isSameUser && currentGroup) {
+        // Add to existing group
+        currentGroup.messages.push(message.text);
+      } else {
+        // Start new group
+        if (currentGroup) {
+          grouped.push(currentGroup);
+        }
+        currentGroup = {
+          id: message.id,
+          userId: message.userId,
+          userName: message.userName,
+          userColor: message.userColor,
+          profilePicture: message.profilePicture,
+          messages: [message.text],
+        };
+      }
+    });
+    
+    if (currentGroup) {
+      grouped.push(currentGroup);
+    }
+    
+    return grouped;
+  };
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+    }, 850); // Match animation duration
+  };
+
+  // Swipe to close functionality (matches Navbar behavior)
+  const handleTouchStart = (e) => {
+    if (!isOpen) return;
+    const touch = e.touches[0];
+    setDragStart(touch.clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isOpen || dragStart === null) return;
+    const touch = e.touches[0];
+    const currentX = touch.clientX;
+    const diff = currentX - dragStart;
+    
+    // Only allow dragging to the left (negative values) to close
+    if (diff < 0) {
+      setDragOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isOpen || dragStart === null) return;
+    
+    // If dragged more than 100px to the left, close the modal with animation
+    if (dragOffset < -100) {
+      handleClose();
+      setDragOffset(0);
+    } else {
+      // Reset position smoothly
+      setDragOffset(0);
+    }
+    setDragStart(null);
+  };
+
+  // Get transition style for modal (matches Navbar behavior)
+  const getTransitionStyle = () => {
+    if (dragOffset !== 0) {
+      return 'none';
+    }
+    return 'transform 0.3s ease';
+  };
+
+  // Get modal style with transform
+  const getModalStyle = () => {
+    const style = {
+      transition: getTransitionStyle()
+    };
+    
+    if (dragOffset !== 0) {
+      style.transform = `translateX(${dragOffset}px)`;
+    }
+    
+    return style;
+  };
+
   return (
     <>
       <button 
         className={`${styles.chatButton} ${isOpen ? styles.open : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (isOpen) {
+            handleClose();
+          } else {
+            setIsOpen(true);
+          }
+        }}
       >
         <span className={styles.bar}></span>
       </button>
       
-      {isOpen && (
-        <div className={styles.modal}>
+      {(isOpen || isClosing) && (
+        <div 
+          ref={modalRef}
+          className={`${styles.modal} ${isOpen && !isClosing ? styles.open : ''} ${isClosing ? styles.closing : ''}`}
+          style={isClosing ? {} : getModalStyle()}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className={styles.modalContent}>
             {/* Header */}
             <div className={styles.header}>
               <button 
                 className={styles.closeButton}
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
               >
                 ×
               </button>
-              <h2 className={styles.title}>COMMUNICATIONS</h2>
               {user && (selectedUserId || selectedChatId) && (
                 <button 
                   className={styles.backButton}
@@ -274,7 +389,7 @@ const ChatModal = () => {
                         className={`${styles.tabButton} ${activeTab === 'conversations' ? styles.active : ''}`}
                         onClick={() => setActiveTab('conversations')}
                       >
-                        CONVERSATIONS
+                        PRIVATE
                       </button>
                       <div className={`${styles.tabIndicator} ${activeTab === 'global' ? styles.indicatorLeft : styles.indicatorRight}`}></div>
                     </div>
@@ -299,35 +414,72 @@ const ChatModal = () => {
                         {loading ? (
                           <p>Loading messages...</p>
                         ) : (
-                          messages.map((message) => (
-                            <div 
-                              key={message.id} 
-                              className={styles.message}
-                            >
-                              <div className={styles.messageHeader}>
-                                {message.profilePicture ? (
-                                  <img 
-                                    src={message.profilePicture} 
-                                    alt={message.userName}
-                                    className={styles.profilePicture}
-                                  />
-                                ) : (
-                                  <div className={styles.profilePicturePlaceholder}>
-                                    {message.userName.charAt(0).toUpperCase()}
+                          groupMessages(messages).map((group, groupIndex) => {
+                            const isCurrentUser = group.userId === user?.uid;
+                            return (
+                              <div 
+                                key={group.id || groupIndex} 
+                                className={`${styles.message} ${isCurrentUser ? styles.messageOwn : ''}`}
+                              >
+                                <div className={styles.messageHeader}>
+                                  {!isCurrentUser && (
+                                    <>
+                                      {group.profilePicture ? (
+                                        <img 
+                                          src={group.profilePicture} 
+                                          alt={group.userName}
+                                          className={styles.profilePicture}
+                                        />
+                                      ) : (
+                                        <div className={styles.profilePicturePlaceholder}>
+                                          {group.userName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                      <span 
+                                        className={styles.sender}
+                                        style={{ color: group.userColor }}
+                                      >
+                                        {group.userName}:
+                                      </span>
+                                    </>
+                                  )}
+                                  <span className={styles.messageText}>
+                                    {group.messages[0]}
+                                  </span>
+                                  {isCurrentUser && (
+                                    <>
+                                      <span 
+                                        className={styles.sender}
+                                        style={{ color: group.userColor }}
+                                      >
+                                        {group.userName}:
+                                      </span>
+                                      {group.profilePicture ? (
+                                        <img 
+                                          src={group.profilePicture} 
+                                          alt={group.userName}
+                                          className={styles.profilePicture}
+                                        />
+                                      ) : (
+                                        <div className={styles.profilePicturePlaceholder}>
+                                          {group.userName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                                {group.messages.length > 1 && (
+                                  <div className={`${styles.messageGroup} ${isCurrentUser ? styles.messageGroupOwn : ''}`}>
+                                    {group.messages.slice(1).map((text, msgIndex) => (
+                                      <span key={msgIndex + 1} className={styles.messageText}>
+                                        {text}
+                                      </span>
+                                    ))}
                                   </div>
                                 )}
-                                <span 
-                                  className={styles.sender}
-                                  style={{ color: message.userColor }}
-                                >
-                                  {message.userName}:
-                                </span> 
                               </div>
-                              <span className={styles.messageText}>
-                                {message.text}
-                              </span>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                         <div ref={messagesEndRef} />
                       </div>

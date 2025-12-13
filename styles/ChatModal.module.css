@@ -5,9 +5,60 @@
   width: 100vw;
   height: 100vh;
   color: white;
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   z-index: 1000;
   overflow: hidden;
+  animation: slideInFromRight 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  transition: transform 0.3s ease;
+}
+
+.modal::before,
+.modal::after {
+  content: '';
+  position: absolute;
+  background-color: var(--foreground);
+  z-index: 1001;
+  height: 2px;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.modal::before {
+  top: 0;
+}
+
+.modal::after {
+  bottom: 0;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.modal.closing {
+  animation: slideOutToRight 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .modalContent {
@@ -15,6 +66,49 @@
   flex-direction: column;
   height: 100vh;
   color: white;
+}
+
+/* Desktop: Limited size at bottom right */
+@media (min-width: 769px) {
+  .modal {
+    top: auto;
+    left: auto;
+    right: 20px;
+    bottom: 80px;
+    width: 400px;
+    height: 600px;
+    max-height: calc(100vh - 100px);
+  }
+
+  .modalContent {
+    height: 100%;
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(calc(100% + 20px));
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutToRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(calc(100% + 20px));
+      opacity: 0;
+    }
+  }
+
+  .modal.closing {
+    animation: slideOutToRight 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
 }
 
 .chatTitle {
@@ -32,25 +126,16 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 1rem;
-  border-bottom: 1px solid white;
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-.title {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: white;
-  flex: 1;
-  text-align: center;
+  background-color: transparent;
 }
 
 .closeButton {
   background: none;
   border: none;
   font-size: 1.8rem;
+  font-weight: 100;
   cursor: pointer;
   color: white;
   padding: 0.5rem;
@@ -60,6 +145,8 @@
   width: 44px;
   height: 44px;
   transition: background-color 0.2s;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .closeButton:hover {
@@ -155,9 +242,23 @@
 /* Mobile-specific improvements */
 @media (max-width: 768px) {
   .modal {
-    background-color: rgba(0, 0, 0, 0.98);
+    top: auto;
+    bottom: 0;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    height: auto;
+    min-height: 80vh;
+    max-height: 80vh;
+    margin-bottom: 2rem;
   }
-  
+
+  .modalContent {
+    height: 100%;
+    min-height: 80vh;
+    max-height: 80vh;
+  }
+
   .header {
     padding: 0.8rem;
   }
@@ -208,7 +309,7 @@
 
 /* Tab Navigation */
 .tabNavigation {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: transparent;
   position: relative;
 }
 
@@ -277,6 +378,8 @@
   overflow-y: auto;
   padding: 1rem;
   background-color: transparent;
+  display: flex;
+  flex-direction: column;
 }
 
 .message {
@@ -285,13 +388,37 @@
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid white;
   backdrop-filter: blur(10px);
+  max-width: 80%;
+}
+
+.messageOwn {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.messageOwn .messageHeader {
+  flex-direction: row-reverse;
+}
+
+.messageOwn .messageHeader .sender {
+  order: 1;
+}
+
+.messageOwn .messageHeader .messageText {
+  order: 2;
 }
 
 .messageHeader {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.profilePicture,
+.profilePicturePlaceholder {
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .profilePicture {
@@ -320,18 +447,33 @@
   color: white;
 }
 
+.messageGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.messageGroupOwn {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: right;
+}
+
 .messageText {
   color: white;
   font-size: 0.95rem;
   line-height: 1.4;
+  display: inline;
 }
 
 .inputForm {
   display: flex;
   gap: 0.5rem;
   padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid white;
+  background-color: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .input {
@@ -440,14 +582,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: transparent;
 }
 
 .chatHeader h3 {
   margin: 0;
   font-size: var(--font-size-subtitle);
   color: #000000;
+}
+
+.otherUserName {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 500;
+  flex: 1;
 }
 
 .typingIndicator {
